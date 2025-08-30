@@ -1,4 +1,3 @@
-// netlify/functions/llm.js
 exports.handler = async (event, context) => {
   if (event.httpMethod !== 'POST') {
     return { statusCode: 405, body: 'Only POST allowed' };
