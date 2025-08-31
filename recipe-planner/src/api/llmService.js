@@ -17,21 +17,33 @@ export async function getLLMInstructions(prompt, opts = {}) {
       max_tokens: opts.max_tokens ?? 600,
     };
 
-    const res = await fetch('/api/llm', {
+    const functionPath =
+      import.meta.env.DEV
+        ? '/api/llm'                   // local netlify dev
+        : '/.netlify/functions/llm'; 
+
+    const res = await fetch(functionPath, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body),
+      // body: JSON.stringify(body),
+      body: JSON.stringify({ prompt: body.prompt }), 
     });
 
-    const text = await res.text();
+    // const res = await fetch('/api/llm', {
+    //   method: 'POST',
+    //   headers: { 'Content-Type': 'application/json' },
+    //   body: JSON.stringify(body),
+    // });
 
-    let data;
-    try {
-      data = JSON.parse(text);
-    } catch {
-      if (!res.ok) throw new Error(`LLM proxy error ${res.status}: ${text}`);
-      return text;
-    }
+    // const text = await res.text();
+    const data = await res.json();
+    // let data;
+    // try {
+    //   data = JSON.parse(text);
+    // } catch {
+    //   if (!res.ok) throw new Error(`LLM proxy error ${res.status}: ${text}`);
+    //   return text;
+    // }
 
     if (!res.ok) {
       throw new Error(`LLM proxy error ${res.status}: ${JSON.stringify(data)}`);
@@ -51,6 +63,6 @@ export async function getLLMInstructions(prompt, opts = {}) {
     return data.response ?? JSON.stringify(data);
   } catch (err) {
     console.error('getLLMInstructions (proxy) error:', err);
-    return `Error contacting LLM proxy: ${err.prompt || err}`;
+    return `Error contacting LLM proxy: ${err.message || err}`;
   }
 }

@@ -6,16 +6,15 @@
 [functions]
   node_bundler = "esbuild"
 
-# Redirect frontend routes to index.html (fix SPA 404s)
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
-
-# API route → function
+# API route -> function (must come BEFORE catch-all)
 [[redirects]]
   from = "/api/llm"
   to = "/.netlify/functions/llm"
   status = 200
   force = true
 
+# SPA support
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
